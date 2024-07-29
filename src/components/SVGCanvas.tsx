@@ -59,13 +59,13 @@ const SVGCanvas: React.FC<SVGCanvasProps> = ({ setLineLength, setLineAngle }) =>
     if (!draw) return;
 
     //create the line
-    const newLine = draw.line(startX, startY, endX, endY).stroke({ width: 2, color: '#f06' });
+    const newLine = draw.line(startX, startY, endX, endY).stroke({ width: 3, color: '#ff0000' });
     newLine.draggable();
     newLine.attr({ style: 'cursor: pointer;' });
 
     //create the start and end circles
-    const startCircle = draw.circle(8).fill('#f06').center(startX, startY).draggable().hide();
-    const endCircle = draw.circle(8).fill('#f06').center(endX, endY).draggable().hide();
+    const startCircle = draw.circle(8).fill('#ff0000').center(startX, startY).draggable().hide();
+    const endCircle = draw.circle(8).fill('#ff0000').center(endX, endY).draggable().hide();
 
     //Update line position based on circle drag
     const updateFromCircle = (circle: Circle, x: number, y: number) => {
@@ -165,7 +165,7 @@ const SVGCanvas: React.FC<SVGCanvasProps> = ({ setLineLength, setLineAngle }) =>
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
-      style={{ border: '1px solid #000', height: '500px' }}
+      className='drawing'
     ></div>
   );
 };

@@ -6,10 +6,10 @@ const LineInfo: React.FC<LineInfoProps> = ({ lineLength, lineAngle }) => {
   return (
     <div id="line-info">
       {lineLength !== null && (
-        <p>Length: {lineLength.toFixed(2)} px</p>
+        <p><strong>Length:</strong> {lineLength.toFixed(2)} px</p>
       )}
       {lineAngle !== null && (
-        <p>Angle: {lineAngle.toFixed(2)}°</p>
+        <p><strong>Angle:</strong> {lineAngle.toFixed(2)}°</p>
       )}
     </div>
   );

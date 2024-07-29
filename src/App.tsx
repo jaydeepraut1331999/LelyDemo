@@ -11,7 +11,7 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <h1>SVG Drawing</h1>
+      <h1 className='linear-text-gradient'>SVG Drawing</h1>
       <SVGCanvas setLineLength={setLineLength} setLineAngle={setLineAngle} />
       <LineInfo lineLength={lineLength} lineAngle={lineAngle} />
     </div>
