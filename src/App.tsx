@@ -8,9 +8,8 @@ const App: React.FC = () => {
   return (
     <LineProvider>
       <div className="App">
-        <h1 className='linear-text-gradient'>SVG Drawing</h1>
-        <LineInfo />
         <SVGCanvas />
+        <LineInfo />
       </div>
     </LineProvider>
   );

@@ -6,18 +6,19 @@ const LineInfo: React.FC = () => {
 
   return (
     <div className="line-info">
-      <label>
-        Line Number:
-        <input type="text" value={lineNumber !== null ? lineNumber : 'N/A'} readOnly />
-      </label>
-      <label>
-        Length (cm):
-        <input type="text" value={lineLength !== null ? (lineLength / 10).toFixed(2) : 'N/A'} readOnly />
-      </label>
-      <label>
-        Angle (°):
-        <input type="text" value={lineAngle !== null ? lineAngle.toFixed(2) : 'N/A'} readOnly />
-      </label>
+      <ul>
+        <li>
+          <span className="line-number">Line {lineNumber}</span>
+        </li>
+        <li>
+          <span className="label">Length</span>
+          <span className="value">{lineLength !== null ? (lineLength / 10).toFixed(2) + ' cm' : 'N/A'}</span>
+        </li>
+        <li>
+          <span className="label">Angle</span>
+          <span className="value">{lineAngle !== null ? lineAngle.toFixed(2) + '°' : 'N/A'}</span>
+        </li>
+      </ul>
     </div>
   );
 };

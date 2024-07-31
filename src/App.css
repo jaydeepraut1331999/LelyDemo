@@ -3,13 +3,6 @@
   text-align: center;
 }
 
-.linear-text-gradient {
-  background: linear-gradient(to top, red, yellow);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
 svg {
   cursor: crosshair;
   border: 1px solid lightgray;
@@ -19,37 +12,51 @@ svg {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 2rem;
 }
 
-/* Styles for LineInfo */
-.line-info {
-  display: flex;
-  justify-content: center; 
-  align-items: center; 
-  gap: 10px;
-  margin-bottom: 20px;
-  text-align: start;
-}
-
-.line-info label {
-  display: flex;
-  flex-direction: column;
-  font-weight: bold;
-}
-
-.line-info input {
+.line-number {
+  background-color: lightgrey;
   padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-  margin-top: 5px;
-  outline: none;
+  border-radius: 3px;
+  font-weight: bold;
+  color: #333;
+  flex: 1;
 }
 
-.line-info input:focus {
-  border-color: #66afe9;
-  box-shadow: 0 0 8px rgba(102, 175, 233, 0.6);
+.line-info {
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 483px; 
+  margin: 0 auto 20px; 
+  text-align: left;
+  font-size: 22px;
 }
+
+.line-info ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.line-info li {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.label {
+  font-weight: bold;
+  color: #333;
+}
+
+.value {
+  color: #555;
+}
+
+
 
 /* Styles for showing circles */
 .draggable-circle {
