@@ -3,24 +3,63 @@
   text-align: center;
 }
 
-svg {
-  cursor: crosshair;
-  border: 1px solid lightgray;
-}
-
-.line-info {
-  margin-top: 20px;
-  font-size: 16px;
-  color: #333;
-}
-
-.drawing {
-  height: '500px' 
- }
-
- .linear-text-gradient {
+.linear-text-gradient {
   background: linear-gradient(to top, red, yellow);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
+
+svg {
+  cursor: crosshair;
+  border: 1px solid lightgray;
+}
+
+/* Styles for LineInfo */
+.line-info {
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+  gap: 10px;
+  margin-bottom: 20px;
+  text-align: start;
+}
+
+.line-info label {
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+}
+
+.line-info input {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-top: 5px;
+  outline: none;
+}
+
+.line-info input:focus {
+  border-color: #66afe9;
+  box-shadow: 0 0 8px rgba(102, 175, 233, 0.6);
+}
+
+/* Styles for showing circles */
+.draggable-circle {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.draggable-circle:hover {
+  cursor: grab;
+}
+
+.draggable-circle.show {
+  opacity: 1;
+}
+
+.draggable-circle.hide {
+  opacity: 0;
+}
+

@@ -1,18 +1,22 @@
-
 import React from 'react';
-import { LineInfoProps } from '../models/interfaces';
+import { useLineContext } from '../context/LineContext';
 
-const LineInfo: React.FC<LineInfoProps> = ({ lineLength, lineAngle }) => {
+const LineInfo: React.FC = () => {
+  const { lineLength, lineAngle } = useLineContext();
+
   return (
-    <div id="line-info">
-      {lineLength !== null && (
-        <p><strong>Length:</strong> {lineLength.toFixed(2)} px</p>
-      )}
-      {lineAngle !== null && (
-        <p><strong>Angle:</strong> {lineAngle.toFixed(2)}°</p>
-      )}
+    <div className="line-info">
+      <label>
+        Length:
+        <input type="text" value={lineLength !== null ? lineLength.toFixed(2) : 'N/A'} readOnly />
+      </label>
+      <label>
+        Angle:
+        <input type="text" value={lineAngle !== null ? lineAngle.toFixed(2) : 'N/A'} readOnly />
+      </label>
     </div>
   );
 };
 
 export default LineInfo;
+

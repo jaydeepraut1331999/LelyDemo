@@ -1,7 +1,6 @@
 
 import { Line, Circle } from '@svgdotjs/svg.js';
 
-
 //props for the SVGCanvas component
 export interface SVGCanvasProps {
     setLineLength: (length: number | null) => void;
@@ -19,5 +18,12 @@ export interface SVGCanvasProps {
     line: Line;
     start: Circle;
     end: Circle;
+  }
+ //props for the LineContext 
+  export interface LineContextProps {
+    lineLength: number | null;
+    lineAngle: number | null;
+    setLineLength: (length: number | null) => void;
+    setLineAngle: (angle: number | null) => void;
   }
   

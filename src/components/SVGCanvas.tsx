@@ -1,26 +1,28 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { SVG, Svg, Line, Circle } from '@svgdotjs/svg.js';
 import '@svgdotjs/svg.draggable.js';
-import { SVGCanvasProps, LineData } from '../models/interfaces';
-import { updateLineInfo, updateCirclesPosition } from '../utils/utils';
+import { LineData } from '../models/interfaces';
+import { useLineContext } from '../context/LineContext';
+import { updateLineProperties } from '../utils/utils';
+import { updateCirclesPosition } from '../utils/utils';
 
-const SVGCanvas: React.FC<SVGCanvasProps> = ({ setLineLength, setLineAngle }) => {
-  const drawingRef = useRef<HTMLDivElement>(null); // Ref for the drawing container
-  const [isDrawing, setIsDrawing] = useState(false); // State to track if a line is being drawn
-  const [currentLine, setCurrentLine] = useState<Line | null>(null); // State to track the current line being drawn
-  const [draw, setDraw] = useState<Svg | null>(null); // State to hold the SVG.js drawing instance
-  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(null); // State to track the starting point of a line
-  const [lines, setLines] = useState<LineData[]>([]); // State to store all drawn lines with their start and end circles
-  const [selectedLine, setSelectedLine] = useState<Line | null>(null); // State to track the currently selected line
+const SVGCanvas: React.FC = () => {
+  const drawingRef = useRef<HTMLDivElement>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [currentLine, setCurrentLine] = useState<Line | null>(null);
+  const [draw, setDraw] = useState<Svg | null>(null);
+  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(null);
+  const [lines, setLines] = useState<LineData[]>([]);
+  const [selectedLine, setSelectedLine] = useState<Line | null>(null);
 
-  // Initialize the SVG canvas when the component mounts
+  const { setLineLength, setLineAngle } = useLineContext();
+
+  // Initialize the SVG canvas
   useEffect(() => {
     if (drawingRef.current && !draw) {
       const svgCanvas = SVG().addTo(drawingRef.current).size(500, 500);
       setDraw(svgCanvas);
 
-      // event listener to handle line selection
       svgCanvas.on('click', (event) => {
         const target = event.target as SVGElement;
         const targetLine = lines.find(({ line }) => line.node === target);
@@ -33,53 +35,49 @@ const SVGCanvas: React.FC<SVGCanvasProps> = ({ setLineLength, setLineAngle }) =>
     }
   }, [draw, lines]);
 
-  // Update line information and show/hide circles based on line selection
+  // Update line information on selection change
   useEffect(() => {
     if (selectedLine) {
       const { start, end } = lines.find(({ line }) => line === selectedLine) || {};
       if (start && end) {
         start.show();
         end.show();
-        const { length, angle } = updateLineInfo(selectedLine);
-        setLineLength(length);
-        setLineAngle(angle);
+        updateLineProperties(selectedLine, setLineLength, setLineAngle);
       }
     } else {
-      lines.forEach(({ start, end }) => {
+      lines.forEach(({ start, end, line }) => {
+        if (line !== currentLine) {
+          line.stroke({ color: 'black', width: 3 });
+        }
         start.hide();
         end.hide();
       });
       setLineLength(null);
       setLineAngle(null);
     }
-  }, [selectedLine, lines, setLineLength, setLineAngle]);
+  }, [selectedLine, lines, setLineLength, setLineAngle, currentLine]);
 
-  //create a new line with draggable start and end circles
+  // Create a new line with draggable start and end circles
   const createLine = (startX: number, startY: number, endX: number, endY: number) => {
     if (!draw) return;
 
-    //create the line
-    const newLine = draw.line(startX, startY, endX, endY).stroke({ width: 3, color: '#ff0000' });
+    const newLine = draw.line(startX, startY, endX, endY).stroke({ width: 3, color: '#33a394' });
     newLine.draggable();
     newLine.attr({ style: 'cursor: pointer;' });
 
-    //create the start and end circles
-    const startCircle = draw.circle(8).fill('#ff0000').center(startX, startY).draggable().hide();
-    const endCircle = draw.circle(8).fill('#ff0000').center(endX, endY).draggable().hide();
+    const startCircle = draw.circle(8).fill('#33a394').center(startX, startY).draggable().addClass('draggable-circle');
+    const endCircle = draw.circle(8).fill('#33a394').center(endX, endY).draggable().addClass('draggable-circle');
 
-    //Update line position based on circle drag
     const updateFromCircle = (circle: Circle, x: number, y: number) => {
       if (circle === startCircle) {
         newLine.plot(x, y, parseFloat(newLine.attr('x2')), parseFloat(newLine.attr('y2')));
       } else {
         newLine.plot(parseFloat(newLine.attr('x1')), parseFloat(newLine.attr('y1')), x, y);
       }
-      const { length, angle } = updateLineInfo(newLine);
-      setLineLength(length);
-      setLineAngle(angle);
+      updateCirclesPosition(newLine, startCircle, endCircle);
+      updateLineProperties(newLine, setLineLength, setLineAngle);
     };
 
-    //event listeners for circle drag
     startCircle.on('dragmove', (event: any) => {
       const { box } = event.detail;
       updateFromCircle(startCircle, box.x + 4, box.y + 4);
@@ -90,21 +88,34 @@ const SVGCanvas: React.FC<SVGCanvasProps> = ({ setLineLength, setLineAngle }) =>
       updateFromCircle(endCircle, box.x + 4, box.y + 4);
     });
 
-    // event listener for line drag
+    newLine.on('dragstart', () => {
+      newLine.stroke({ color: '#33a394', width: 3 });
+      startCircle.fill('#33a394');
+      endCircle.fill('#33a394');
+      setSelectedLine(newLine);
+    });
+
     newLine.on('dragmove', () => {
       updateCirclesPosition(newLine, startCircle, endCircle);
-      const { length, angle } = updateLineInfo(newLine);
-      setLineLength(length);
-      setLineAngle(angle);
+      updateLineProperties(newLine, setLineLength, setLineAngle);
     });
 
-    // Show circles on hover
+    newLine.on('dragend', () => {
+      if (newLine !== selectedLine) {
+        newLine.stroke({ color: 'black', width: 3 });
+      }
+      startCircle.fill('black');
+      endCircle.fill('black');
+      setSelectedLine(null);
+    });
+
     newLine.on('mouseover', () => {
-      startCircle.show();
-      endCircle.show();
+      if (newLine !== selectedLine) {
+        startCircle.show();
+        endCircle.show();
+      }
     });
 
-    // Hide circles when not hovered,unless the line is selected
     newLine.on('mouseout', () => {
       if (newLine !== selectedLine) {
         startCircle.hide();
@@ -112,13 +123,35 @@ const SVGCanvas: React.FC<SVGCanvasProps> = ({ setLineLength, setLineAngle }) =>
       }
     });
 
-    // Add the new line and circles to the lines state
+    startCircle.on('mouseover', () => {
+      startCircle.show();
+      endCircle.show();
+    });
+
+    startCircle.on('mouseout', () => {
+      if (selectedLine === null) {
+        startCircle.hide();
+        endCircle.hide();
+      }
+    });
+
+    endCircle.on('mouseover', () => {
+      startCircle.show();
+      endCircle.show();
+    });
+
+    endCircle.on('mouseout', () => {
+      if (selectedLine === null) {
+        startCircle.hide();
+        endCircle.hide();
+      }
+    });
+
     setLines((prevLines) => [...prevLines, { line: newLine, start: startCircle, end: endCircle }]);
-    updateCirclesPosition(newLine, startCircle, endCircle); // Initial position update for the new line
+    updateCirclesPosition(newLine, startCircle, endCircle);
     return newLine;
   };
 
-  // Handle mouse down event to start drawing a line
   const handleMouseDown = (event: React.MouseEvent) => {
     if (!draw) return;
     const { offsetX, offsetY } = event.nativeEvent;
@@ -126,19 +159,17 @@ const SVGCanvas: React.FC<SVGCanvasProps> = ({ setLineLength, setLineAngle }) =>
     setIsDrawing(true);
   };
 
-  // Handle mouse move event to draw the line dynamically
   const handleMouseMove = (event: React.MouseEvent) => {
     if (isDrawing && startPoint && draw) {
       const { offsetX, offsetY } = event.nativeEvent;
       if (currentLine) {
+        // Update line plot and properties in real-time
         currentLine.plot(startPoint.x, startPoint.y, offsetX, offsetY);
         const { start, end } = lines.find(({ line }) => line === currentLine) || {};
         if (start && end) {
           updateCirclesPosition(currentLine, start, end);
         }
-        const { length, angle } = updateLineInfo(currentLine);
-        setLineLength(length);
-        setLineAngle(angle);
+        updateLineProperties(currentLine, setLineLength, setLineAngle);
       } else {
         const newLine = createLine(startPoint.x, startPoint.y, offsetX, offsetY);
         setCurrentLine(newLine ?? null);
@@ -146,27 +177,23 @@ const SVGCanvas: React.FC<SVGCanvasProps> = ({ setLineLength, setLineAngle }) =>
     }
   };
 
-  // Handle mouse up event to stop drawing
   const handleMouseUp = () => {
     setIsDrawing(false);
     setCurrentLine(null);
   };
 
-  // Handle mouse leave event to stop drawing
   const handleMouseLeave = () => {
     setIsDrawing(false);
   };
 
   return (
-    <div
-      id="drawing"
-      ref={drawingRef}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
-      className='drawing'
-    ></div>
+      <div
+        ref={drawingRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+      ></div>
   );
 };
 
