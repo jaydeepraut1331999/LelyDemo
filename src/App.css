@@ -15,6 +15,12 @@ svg {
   border: 1px solid lightgray;
 }
 
+.canvas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 /* Styles for LineInfo */
 .line-info {
   display: flex;

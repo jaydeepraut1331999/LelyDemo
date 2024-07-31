@@ -18,6 +18,7 @@ export interface SVGCanvasProps {
     line: Line;
     start: Circle;
     end: Circle;
+    lineNumber?: number;
   }
  //props for the LineContext 
   export interface LineContextProps {

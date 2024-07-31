@@ -14,10 +14,10 @@ const SVGCanvas: React.FC = () => {
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(null);
   const [lines, setLines] = useState<LineData[]>([]);
   const [selectedLine, setSelectedLine] = useState<Line | null>(null);
+  const [lineCount, setLineCount] = useState(0);
 
-  const { setLineLength, setLineAngle } = useLineContext();
+  const { setLineLength, setLineAngle, setLineNumber } = useLineContext();
 
-  // Initialize the SVG canvas
   useEffect(() => {
     if (drawingRef.current && !draw) {
       const svgCanvas = SVG().addTo(drawingRef.current).size(500, 500);
@@ -35,14 +35,14 @@ const SVGCanvas: React.FC = () => {
     }
   }, [draw, lines]);
 
-  // Update line information on selection change
   useEffect(() => {
     if (selectedLine) {
-      const { start, end } = lines.find(({ line }) => line === selectedLine) || {};
-      if (start && end) {
+      const { start, end, lineNumber } = lines.find(({ line }) => line === selectedLine) || {};
+      if (start && end && lineNumber != null) {
         start.show();
         end.show();
         updateLineProperties(selectedLine, setLineLength, setLineAngle);
+        setLineNumber(lineNumber);
       }
     } else {
       lines.forEach(({ start, end, line }) => {
@@ -54,19 +54,19 @@ const SVGCanvas: React.FC = () => {
       });
       setLineLength(null);
       setLineAngle(null);
+      setLineNumber(null);
     }
-  }, [selectedLine, lines, setLineLength, setLineAngle, currentLine]);
+  }, [selectedLine, lines, setLineLength, setLineAngle, currentLine, setLineNumber]);
 
-  // Create a new line with draggable start and end circles
   const createLine = (startX: number, startY: number, endX: number, endY: number) => {
     if (!draw) return;
 
-    const newLine = draw.line(startX, startY, endX, endY).stroke({ width: 3, color: '#33a394' });
+    const newLine = draw.line(startX, startY, endX, endY).stroke({ width: 3, color: '#0F92E7' });
     newLine.draggable();
     newLine.attr({ style: 'cursor: pointer;' });
 
-    const startCircle = draw.circle(8).fill('#33a394').center(startX, startY).draggable().addClass('draggable-circle');
-    const endCircle = draw.circle(8).fill('#33a394').center(endX, endY).draggable().addClass('draggable-circle');
+    const startCircle = draw.circle(8).fill('#0F92E7').center(startX, startY).draggable().addClass('draggable-circle');
+    const endCircle = draw.circle(8).fill('#0F92E7').center(endX, endY).draggable().addClass('draggable-circle');
 
     const updateFromCircle = (circle: Circle, x: number, y: number) => {
       if (circle === startCircle) {
@@ -89,9 +89,9 @@ const SVGCanvas: React.FC = () => {
     });
 
     newLine.on('dragstart', () => {
-      newLine.stroke({ color: '#33a394', width: 3 });
-      startCircle.fill('#33a394');
-      endCircle.fill('#33a394');
+      newLine.stroke({ color: '#0F92E7', width: 3 });
+      startCircle.fill('#0F92E7');
+      endCircle.fill('#0F92E7');
       setSelectedLine(newLine);
     });
 
@@ -147,8 +147,16 @@ const SVGCanvas: React.FC = () => {
       }
     });
 
-    setLines((prevLines) => [...prevLines, { line: newLine, start: startCircle, end: endCircle }]);
+    const newLineNumber = lineCount + 1;
+    setLineCount(newLineNumber);
+
+    setLines((prevLines) => [
+      ...prevLines,
+      { line: newLine, start: startCircle, end: endCircle, lineNumber: newLineNumber},
+    ]);
+
     updateCirclesPosition(newLine, startCircle, endCircle);
+
     return newLine;
   };
 
@@ -163,7 +171,6 @@ const SVGCanvas: React.FC = () => {
     if (isDrawing && startPoint && draw) {
       const { offsetX, offsetY } = event.nativeEvent;
       if (currentLine) {
-        // Update line plot and properties in real-time
         currentLine.plot(startPoint.x, startPoint.y, offsetX, offsetY);
         const { start, end } = lines.find(({ line }) => line === currentLine) || {};
         if (start && end) {
@@ -187,13 +194,16 @@ const SVGCanvas: React.FC = () => {
   };
 
   return (
-      <div
-        ref={drawingRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-      ></div>
+    <div className="canvas-container">
+    <div
+      ref={drawingRef}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      style={{ width: '500px', height: '500px', border: '1px solid black', position: 'relative' }}
+    ></div>
+    </div>
   );
 };
 
